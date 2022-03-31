@@ -1,0 +1,64 @@
+---
+- tags:
+    - post-install
+    - idp
+  set_fact:
+    identity_providers: "[]"
+
+- block:
+  - name: Create htpasswd identity provider template
+    set_fact:
+      htpasswd_idp:
+        htpasswd:
+          fileData:
+            name: "{{ htpasswd_secret_name }}"
+        mappingMethod: claim
+        name: Local
+        type: HTPasswd
+
+  - name: Push htpasswd_idp to identity_providers
+    set_fact:
+      identity_providers: "{{ identity_providers }} + [ {{ htpasswd_idp }} ]"
+
+  - name: Configure identity providers
+    kubernetes.core.k8s:
+      state: present
+      definition:
+          apiVersion: config.openshift.io/v1
+          kind: OAuth
+          metadata:
+            name: cluster
+          spec:
+            identityProviders: "{{ identity_providers }}"
+    tags:
+      - post-install
+      - idp
+
+  - name: Setup cluster role bindings
+    kubernetes.core.k8s:
+      state: present
+      definition:
+        kind: ClusterRoleBinding
+        apiVersion: rbac.authorization.k8s.io/v1
+        metadata:
+          name: "{{ username }}-{{ item }}"
+        subjects:
+        - apiGroup: rbac.authorization.k8s.io
+          kind: User
+          name: "{{ username }}"
+        roleRef:
+          kind: ClusterRole
+          name: "{{ item }}"
+    with_items: "{{ cluster_roles }}"
+    when: cluster_roles is defined and cluster_roles|length
+    tags:
+      - post-install
+      - rolebindings
+
+  environment:
+    KUBECONFIG: "{{ kubeconfig }}"
+
+  # module_defaults:
+  #   group/k8s:
+  #     host: "https://api.{{ cluster_name }}.{{ public_domain }}:6443"
+  #     validate_certs: "{{ k8s_validate_certs }}"

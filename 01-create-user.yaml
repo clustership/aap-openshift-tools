@@ -1,0 +1,13 @@
+#!/usr/bin/env ansible-playbook
+---
+- hosts: localhost
+  tasks:
+  - import_role:
+      name: ocp4-setup-user
+      tasks_from: main.yml
+    vars:
+      kubeconfig: "{{ lookup('env', 'KUBECONFIG') }}"
+      username: xymox
+      password: bobleponge
+      cluster_roles:
+      - cluster-admin
