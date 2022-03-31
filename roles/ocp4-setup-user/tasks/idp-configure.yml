@@ -55,6 +55,14 @@
       - post-install
       - rolebindings
 
+  - name: Get web-console route
+    command: "oc -n openshift-console get route console -o jsonpath='{.spec.host}'"
+    register: console_url
+
+  - debug:
+      msg:
+        "You can now login to https://{{ console_url.stdout }}"
+
   environment:
     KUBECONFIG: "{{ kubeconfig }}"
 

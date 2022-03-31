@@ -2,9 +2,9 @@
 # tasks file for ocp4-setup-admin-users
 
 - name: Create htpasswd
-  include: htpasswd-create.yml
+  include_tasks: htpasswd-create.yml
   tags: htpasswd
 
 - name: Configure idp
-  include: idp-configure.yml
+  include_tasks: idp-configure.yml
   tags: idp
