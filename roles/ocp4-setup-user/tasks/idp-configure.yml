@@ -20,6 +20,9 @@
     set_fact:
       identity_providers: "{{ identity_providers }} + [ {{ htpasswd_idp }} ]"
 
+  - debug:
+      msg: "{{ identity_provider }}"
+
   - name: Configure identity providers
     kubernetes.core.k8s:
       state: present
