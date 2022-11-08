@@ -9,7 +9,7 @@
   - name: Create htpasswd identity provider template
     set_fact:
       htpasswd_idp:
-        {{ idp_key }}:
+        htpasswd:
           fileData:
             name: "{{ htpasswd_secret_name }}"
         mappingMethod: claim
