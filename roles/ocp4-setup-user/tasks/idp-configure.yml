@@ -21,7 +21,7 @@
       identity_providers: "{{ identity_providers }} + [ {{ htpasswd_idp }} ]"
 
   - debug:
-      msg: "{{ identity_provider }}"
+      msg: "{{ identity_providers }}"
 
   - name: Configure identity providers
     kubernetes.core.k8s:
