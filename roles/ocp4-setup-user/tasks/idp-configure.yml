@@ -18,7 +18,7 @@
 
   - name: Push htpasswd_idp to identity_providers
     set_fact:
-      identity_providers: "{{ identity_providers + [ htpasswd_idp ]"
+      identity_providers: "{{ identity_providers + [ htpasswd_idp ] }}"
 
   - debug:
       msg: "{{ identity_providers }}"
