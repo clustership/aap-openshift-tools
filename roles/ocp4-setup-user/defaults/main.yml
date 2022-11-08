@@ -2,3 +2,5 @@
 # defaults file for ocp4-setup-admin-users
 k8s_validate_certs: true
 htpasswd_secret_name: idp-htpasswd-secret
+idp_name: Local
+idp_key: htpasswd

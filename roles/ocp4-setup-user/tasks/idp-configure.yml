@@ -9,11 +9,11 @@
   - name: Create htpasswd identity provider template
     set_fact:
       htpasswd_idp:
-        htpasswd:
+        "{{ idp_key }}":
           fileData:
             name: "{{ htpasswd_secret_name }}"
         mappingMethod: claim
-        name: Local
+        name: "{{ idp_name }}"
         type: HTPasswd
 
   - name: Push htpasswd_idp to identity_providers
