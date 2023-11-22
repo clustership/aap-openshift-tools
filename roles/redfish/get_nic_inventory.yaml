@@ -17,8 +17,8 @@
     - 172.18.10.108
     - 172.18.10.109
     - 172.18.10.110
-    username: root
-    password: rougefeuYY
+    username: "{{ bmc.user }}"
+    password: "{{ bmc.password }}"
     template: all_nics
 
   tasks:

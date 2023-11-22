@@ -12,8 +12,8 @@
     nodename: rhsec-serv07
     cluster: rhsec-lab-clusters
     infraenv: rhsec-lab-infraenv
-    username: root
-    password: rougefeuYY
+    username: "{{ bmc.user }}"
+    password: "{{ bmc.password }}"
     template: all_nics
 
   tasks:
