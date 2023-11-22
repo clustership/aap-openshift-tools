@@ -1,0 +1,66 @@
+---
+- hosts: all
+  connection: local
+  name: NIC Inventory
+  gather_facts: False
+
+  vars_files:
+  - mapping.txt
+
+  vars:
+    datatype: NicInventory
+    baseuris:
+    - 172.18.10.102
+    - 172.18.10.103
+    - 172.18.10.104
+    - 172.18.10.105
+    - 172.18.10.108
+    - 172.18.10.109
+    - 172.18.10.110
+    username: root
+    password: rougefeuYY
+    template: all_nics
+
+  tasks:
+
+  # - name: Define output file
+  #   include_tasks: create_output_file.yml
+
+  - name: Get NIC Information
+    redfish_info:
+      category: Systems
+      command: GetNicInventory
+      baseuri: "{{ item }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+    register: nics 
+    loop: "{{ baseuris }}"
+
+  - name: Debug
+    debug:
+      msg: "{{ dell_nics_mapping }}"
+    when: False
+  
+  - name: Copy results to output file
+    copy:
+      content: "{{ item.redfish_facts.nic.entries[0][1] | to_nice_json }}"
+      dest: "{{ template }}.json"
+    ignore_errors: true
+    loop: "{{ nics.results }}"
+
+  - name: Copy results to output file
+    ansible.builtin.blockinfile:
+      block: "{{ lookup('template', 'template.j2') }}"
+      dest: "{{ template }}.txt"
+    vars:
+      entries: "{{ item.redfish_facts.nic.entries[0][1] }}"
+    loop: "{{ nics.results }}"
+
+  - name: Copy results to output file
+    ansible.builtin.template:
+      src: template.j2
+      dest: "{{ template }}.txt"
+    vars:
+      entries: "{{ item.redfish_facts.nic.entries[0][1] }}"
+    loop: "{{ nics.results }}"
+    when: False

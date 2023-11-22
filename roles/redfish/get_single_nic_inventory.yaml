@@ -1,0 +1,56 @@
+---
+- hosts: all
+  connection: local
+  name: NIC Inventory
+  gather_facts: False
+
+  vars_files:
+  - mapping.txt
+
+  vars:
+    baseuri: 172.18.10.109
+    nodename: rhsec-serv07
+    cluster: rhsec-lab-clusters
+    infraenv: rhsec-lab-infraenv
+    username: root
+    password: rougefeuYY
+    template: all_nics
+
+  tasks:
+
+  # - name: Define output file
+  #   include_tasks: create_output_file.yml
+
+  - name: Get NIC Information
+    redfish_info:
+      category: Systems
+      command: GetNicInventory
+      baseuri: "{{ baseuri }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+    register: result
+
+  - name: Debug
+    debug:
+      msg: "{{ dell_nics_mapping }}"
+  
+  - name: Copy results to output file
+    copy:
+      content: "{{ result.redfish_facts.nic.entries[0][1] | to_nice_json }}"
+      dest: "{{ template }}.json"
+
+  - name: Create nmstate config
+    ansible.builtin.template:
+      src: nmstate.j2
+      dest: "{{ cluster }}-{{ nodename }}-nmstateconfig.yaml"
+      lstrip_blocks: yes
+    vars:
+      entries: "{{ result.redfish_facts.nic.entries[0][1] }}"
+
+  - name: Create baremetalhost resource
+    ansible.builtin.template:
+      src: baremetalhost.j2
+      dest: "{{ cluster }}-{{ nodename }}-bmh.yaml"
+      lstrip_blocks: yes
+    vars:
+      boot_mac_address: "{{ result.redfish_facts.nic.entries[0][1][0].MACAddress | lower }}"

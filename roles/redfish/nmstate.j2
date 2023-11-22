@@ -1,0 +1,44 @@
+---
+apiVersion: agent-install.openshift.io/v1beta1
+kind: NMStateConfig
+metadata:
+  name: {{ infraenv}}-{{nodename}}-nmstateconfig
+  namespace: {{ cluster }}
+  labels:
+    cluster: {{ cluster }}
+    infraenvs.agent-install.openshift.io: {{ infraenv }}
+spec:
+  config:
+    interfaces:
+{% for entry in entries|sort(attribute='Id') %}
+    - name: {{ dell_nics_mapping[entry.Id]|default(entry.Id) }}
+      type: ethernet
+      state: {{ (entry.SpeedMbps|int > 0)|ternary('up', 'down') }}
+      ipv4:
+        dhcp: false
+        {% if loop.index == 1 %}
+        address:
+        - ip: 172.16.1.65
+          prefix-length: 24
+        enabled: true
+        {% else %}
+        enabled: false
+        {% endif %}
+      mtu: 1500
+{% endfor %}
+    routes:
+      config:
+      - destination: 0.0.0.0/0
+        next-hop-address: 172.16.1.1
+        next-hop-interface: eno1
+    dns-resolver:
+      config:
+        server:
+        - 172.16.1.176
+        - 8.8.8.8
+        - 1.1.1.1
+  interfaces:
+{% for entry in entries|sort(attribute='Id') %}
+  - name: {{ dell_nics_mapping[entry.Id] }}
+    macAddress: {{ entry.MACAddress | lower }}
+{% endfor %}
