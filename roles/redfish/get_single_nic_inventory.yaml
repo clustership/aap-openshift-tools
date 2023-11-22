@@ -8,10 +8,10 @@
   - mapping.txt
 
   vars:
-    baseuri: 172.18.10.109
-    nodename: rhsec-serv07
-    cluster: rhsec-lab-clusters
-    infraenv: rhsec-lab-infraenv
+    baseuri:  "{{ bmc.address }}"
+    nodename: "{{ bmh.nodename }}"
+    cluster:  "{{ cluster_name }}"
+    infraenv: "{{ infraenv_name }}"
     username: "{{ bmc.user }}"
     password: "{{ bmc.password }}"
     template: all_nics
